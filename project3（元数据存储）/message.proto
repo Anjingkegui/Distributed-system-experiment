@@ -1,0 +1,82 @@
+syntax = "proto2";
+
+
+// dataserver should inform the nameserver its existence and its information
+message dataserverregister {
+    required string ip = 1;
+    required int32 port = 2;
+};
+
+
+// when nameserver get a registration information from a datasever
+// nameserver should tell the datasever its id, and the information of its neighbors
+message dataserverinfo {
+    optional int32 id = 1;
+    // the neighbor in front of it
+    optional string fip = 2;
+    optional int32 fport = 3;
+    // the neighbor behind it
+    optional string eip = 4;
+    optional int32 eport = 5;
+};
+
+
+// msgcontainer_type should be FILEREAD or FILEWRITE
+// with DataServer
+message filerange {
+    required string file = 1;
+    required int32 fileID = 2;
+    required int32 length = 3;
+    required bool isMsgFromCL = 4;
+};
+
+
+// for each file to write or rewrite, client require a location from name server
+// name server will return a new location
+// client can specify file or fd, while name server will tell you both
+// msgcontainer_type should be FILELOCATION
+message filelocation {
+    optional string file = 1;
+    optional string ip = 2;
+    optional int32 port = 3;
+    optional int32 fd = 4;
+    optional int32 filelen = 5;
+}
+
+
+// v2  msgdelete
+message filedelete {
+    optional string file = 1;
+}
+
+// v2 get all cluster data
+message clusterdata {
+    optional int32 clusternum = 1;
+}
+
+message msgcontainer {
+    enum type { 
+        FILELOCATION = 0;
+
+        DELETEFILE = 1;
+        FILEWRITE = 2;
+        FILEREAD = 3;
+
+        ALLINFORMATION = 4;
+        
+        DATASERVERREGISTER = 5;
+        DATASERVERINFO = 6;
+    };
+
+    required type msgtype = 1;
+
+    optional filerange frange = 2;
+    optional filelocation floc = 3;
+
+    optional filedelete filedel = 4;
+    optional clusterdata acluster = 5;
+
+    optional dataserverregister dregister = 6;
+    optional dataserverinfo dinfo = 7;
+};
+

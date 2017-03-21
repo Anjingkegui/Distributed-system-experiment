@@ -1,0 +1,67 @@
+syntax = "proto2";
+
+
+// dataserver should inform the nameserver its existence and its information
+message dataserverregister {
+    required string ip = 1;
+    required int32 port = 2;
+};
+
+
+// when nameserver get a registration information from a datasever
+// nameserver should tell the datasever its id, and the information of its neighbors
+message dataserverinfo {
+    optional int32 id = 1;
+    // the neighbor in front of it
+    optional string fip = 2;
+    optional int32 fport = 3;
+    // the neighbor behind it
+    optional string eip = 4;
+    optional int32 eport = 5;
+};
+
+
+// msgcontainer_type should be FILEREAD or FILEWRITE
+message filerange {
+    required string file = 1;
+    required int32 fileID = 2;
+    required int32 segno = 3;
+    // offset in segment
+    required int32 offset = 4;
+    required int32 length = 5;
+    required bool isMsgFromCL = 6;
+};
+
+
+// for each segment(read or write), client require a location from name server
+// if not founded, name server will return a new location
+// client can specify file or fd, while name server will tell you both
+// msgcontainer_type should be FILELOCATION
+message filelocation {
+    required int32 segno = 1;
+    optional string file = 2;
+    optional string ip = 3;
+    optional int32 port = 4;
+    optional int32 fd = 5;
+}
+
+
+message msgcontainer {
+    enum type { 
+        FILELOCATION = 0;
+        
+        FILEREAD = 1;
+        FILEWRITE = 2;
+        
+        DATASERVERREGISTER = 3;
+        DATASERVERINFO = 4;
+    };
+
+    required type msgtype = 1;
+
+    optional filerange frange = 2;
+    optional filelocation floc = 3;
+    optional dataserverregister dregister = 4;
+    optional dataserverinfo dinfo = 5;
+};
+
